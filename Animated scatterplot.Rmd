@@ -1,0 +1,33 @@
+---
+title: "Animated Graph"
+output: html_notebook
+---
+Using a user-defined function to create plots quickens the analysis of customer trends and mimics the approach taken by business intelligence software that allow for slicing by a specific feature.
+The code below creates a scatter plot graph showing the relationship between bike rentals and temperature over the 24 months between Jan 2011 and Dec. 2012.
+
+```{r Function}
+data <-read.csv("https://raw.githubusercontent.com/OunzaC/animatedggplot/main/bikes.csv")
+data$date<-as.Date(data$date)
+library(dplyr)
+library(ggplot2)
+library(gganimate)
+library(av)
+bikerentals_fun <-function(day) {
+  bikesdata <- data %>%
+    filter(weekday == day) %>%
+    mutate(year = format(date,format = "%Y - %m"))
+a<-ggplot(bikesdata, aes(windspeed, rentals)) + geom_point()+
+labs(title = 'Correlation of Windspeed and Rentals', 
+       x = 'Windspeed', 
+       y = 'Bike rentals') +
+  theme(legend.position = "none")+
+  transition_time(date)+
+  ease_aes('linear')
+animation <- a + exit_shrink()
+anim_save("animation.mp4", animation = animation,renderer = av_renderer())
+return(animation)
+}
+
+bikerentals_fun(1)
+```
+
